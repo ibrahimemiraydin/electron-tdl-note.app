@@ -1,5 +1,5 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React from 'react';
+import { Link } from 'react-router-dom';
 
 interface SidebarProps {
   children: React.ReactNode;
@@ -11,7 +11,7 @@ const Sidebar: React.FC<SidebarProps> = ({ children }) => {
       <div className="w-1/5 bg-white p-4 flex flex-col justify-between shadow-md">
         <div>
           <div className="text-center mb-6">
-            <h2 className="text-xl font-bold text-blue-600">Profile Name</h2>
+            <h2 className="text-xl font-bold text-blue-600">Notefier</h2>
           </div>
           <div className="space-y-2">
             <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 rounded p-2 w-full transition duration-300">
@@ -22,9 +22,14 @@ const Sidebar: React.FC<SidebarProps> = ({ children }) => {
                 Home
               </button>
             </Link>
-            <Link to="/tasks">
+            <Link to="/task-list">
               <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 rounded p-2 w-full transition duration-300">
                 Task List
+              </button>
+            </Link>
+            <Link to="/tasks">
+              <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 rounded p-2 w-full transition duration-300">
+                Task Manager
               </button>
             </Link>
           </div>
@@ -40,7 +45,7 @@ const Sidebar: React.FC<SidebarProps> = ({ children }) => {
       </div>
       <div className="flex-1 flex items-center justify-center">{children}</div>
     </div>
-  )
-}
+  );
+};
 
-export default Sidebar
+export default Sidebar;

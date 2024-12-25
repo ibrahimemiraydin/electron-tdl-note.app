@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import HomePage from '../../pages/HomePage';
-import TaskPage from '../../pages/TaskPage';
+import TaskPage from '../../pages/TaskManagerPage';
+import TaskListPage from '../../pages/TaskListPage';
 
 interface Task {
   id: number;
@@ -65,6 +66,10 @@ const App: React.FC = () => {
               deleteTask={deleteTask}
             />
           }
+        />
+        <Route
+          path="/task-list"
+          element={<TaskListPage tasks={tasks} />}
         />
       </Routes>
     </Router>
