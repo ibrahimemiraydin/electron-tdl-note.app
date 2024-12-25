@@ -21,8 +21,8 @@ const App: React.FC = () => {
       setTasks(loadedTasks);
     });
 
-    window.electron.ipcRenderer.invoke('get-trashed-tasks').then((loadedTrashedTasks: Task[]) => {
-      setTrashedTasks(loadedTrashedTasks);
+    window.electron.ipcRenderer.invoke('get-trashed-tasks').then((loadedTasks: Task[]) => {
+      setTrashedTasks(loadedTasks);
     });
   }, []);
 
@@ -78,7 +78,7 @@ const App: React.FC = () => {
       <Routes>
         <Route
           path="/"
-          element={<HomePage addTask={addTask} />}
+          element={<HomePage addTask={addTask} recentTasks={tasks.slice(0, 3)} />}
         />
         <Route
           path="/tasks"

@@ -2,11 +2,18 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 
-interface HomePageProps {
-  addTask: (title: string, notes: string) => void;
+interface Task {
+  id: number;
+  title: string;
+  notes: string;
 }
 
-const HomePage: React.FC<HomePageProps> = ({ addTask }) => {
+interface HomePageProps {
+  addTask: (title: string, notes: string) => void;
+  recentTasks: Task[];
+}
+
+const HomePage: React.FC<HomePageProps> = ({ addTask, recentTasks }) => {
   const [taskTitle, setTaskTitle] = useState('');
 
   const handleAddTask = () => {
@@ -37,6 +44,17 @@ const HomePage: React.FC<HomePageProps> = ({ addTask }) => {
             Go to Task Manager
           </button>
         </Link>
+      </div>
+      <div className="mt-8 bg-white rounded-lg p-6 shadow-lg">
+        <h2 className="text-3xl font-bold text-blue-600 mb-4">Recent Tasks</h2>
+        <div className="space-y-4">
+          {recentTasks.slice(-3).reverse().map((task) => (
+            <div key={task.id} className="bg-white p-4 rounded shadow-md border border-gray-300">
+              <h3 className="text-xl font-bold text-gray-700 mb-2">{task.title}</h3>
+              <p className="text-gray-600">{task.notes}</p>
+            </div>
+          ))}
+        </div>
       </div>
     </Sidebar>
   );
