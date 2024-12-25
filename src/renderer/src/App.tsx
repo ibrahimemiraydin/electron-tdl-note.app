@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import HomePage from '../../pages/HomePage';
 import TaskPage from '../../pages/TaskManagerPage';
 import TaskListPage from '../../pages/TaskListPage';
+import TrashPage from '../../pages/TrashPage';
 
 interface Task {
   id: number;
@@ -12,11 +13,16 @@ interface Task {
 
 const App: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [trashedTasks, setTrashedTasks] = useState<Task[]>([]);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   useEffect(() => {
     window.electron.ipcRenderer.invoke('get-all-tasks').then((loadedTasks: Task[]) => {
       setTasks(loadedTasks);
+    });
+
+    window.electron.ipcRenderer.invoke('get-trashed-tasks').then((loadedTrashedTasks: Task[]) => {
+      setTrashedTasks(loadedTrashedTasks);
     });
   }, []);
 
@@ -40,8 +46,27 @@ const App: React.FC = () => {
     });
   };
 
-  const deleteTask = (id: number): void => {
-    window.electron.ipcRenderer.invoke('delete-task', id).then(() => {
+  const trashTask = (id: number): void => {
+    window.electron.ipcRenderer.invoke('trash-task', id).then(() => {
+      window.electron.ipcRenderer.invoke('get-all-tasks').then((loadedTasks: Task[]) => {
+        setTasks(loadedTasks);
+      });
+      window.electron.ipcRenderer.invoke('get-trashed-tasks').then((loadedTrashedTasks: Task[]) => {
+        setTrashedTasks(loadedTrashedTasks);
+      });
+    });
+  };
+
+  const deleteTaskPermanently = (id: number): void => {
+    window.electron.ipcRenderer.invoke('delete-task-permanently', id).then(() => {
+      window.electron.ipcRenderer.invoke('get-trashed-tasks').then((loadedTrashedTasks: Task[]) => {
+        setTrashedTasks(loadedTrashedTasks);
+      });
+    });
+  };
+
+  const renameTask = (id: number, title: string): void => {
+    window.electron.ipcRenderer.invoke('rename-task', id, title).then(() => {
       window.electron.ipcRenderer.invoke('get-all-tasks').then((loadedTasks: Task[]) => {
         setTasks(loadedTasks);
       });
@@ -63,13 +88,23 @@ const App: React.FC = () => {
               selectedTask={selectedTask}
               setSelectedTask={setSelectedTask}
               updateTask={updateTask}
-              deleteTask={deleteTask}
+              trashTask={trashTask}
+              renameTask={renameTask}
             />
           }
         />
         <Route
           path="/task-list"
           element={<TaskListPage tasks={tasks} />}
+        />
+        <Route
+          path="/trash"
+          element={
+            <TrashPage
+              trashedTasks={trashedTasks}
+              deleteTaskPermanently={deleteTaskPermanently}
+            />
+          }
         />
       </Routes>
     </Router>

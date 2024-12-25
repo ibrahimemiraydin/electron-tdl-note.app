@@ -2,7 +2,7 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron';
 import { join } from 'path';
 import { electronApp, optimizer, is } from '@electron-toolkit/utils';
 import icon from '../../resources/icon.png?asset';
-import { getAllTasks, addTask, updateTask, deleteTask } from '../database'; // Import database functions
+import { getAllTasks, addTask, updateTask, trashTask, deleteTaskPermanently, renameTask, getTrashedTasks } from '../database'; // Import database functions
 
 function createWindow(): void {
   // Create the browser window.
@@ -75,7 +75,10 @@ app.on('window-all-closed', () => {
 ipcMain.handle('get-all-tasks', () => getAllTasks());
 ipcMain.handle('add-task', (_, title, notes) => addTask(title, notes));
 ipcMain.handle('update-task', (_, id, notes) => updateTask(id, notes));
-ipcMain.handle('delete-task', (_, id) => deleteTask(id));
+ipcMain.handle('trash-task', (_, id) => trashTask(id));
+ipcMain.handle('delete-task-permanently', (_, id) => deleteTaskPermanently(id));
+ipcMain.handle('rename-task', (_, id, title) => renameTask(id, title));
+ipcMain.handle('get-trashed-tasks', () => getTrashedTasks()); // Add this handler
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.

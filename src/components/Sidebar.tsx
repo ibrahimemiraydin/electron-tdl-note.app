@@ -38,9 +38,11 @@ const Sidebar: React.FC<SidebarProps> = ({ children }) => {
           <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 rounded p-2 w-full transition duration-300">
             Settings
           </button>
-          <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 rounded p-2 w-full transition duration-300">
-            Trash
-          </button>
+            <Link to="/trash">
+              <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 rounded p-2 w-full transition duration-300"> 
+                Trash 
+              </button>
+            </Link>
         </div>
       </div>
       <div className="flex-1 flex items-center justify-center">{children}</div>

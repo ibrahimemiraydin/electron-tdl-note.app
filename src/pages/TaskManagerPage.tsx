@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import TaskList from '../components/TaskList';
+import { Menu, Item, useContextMenu } from 'react-contexify';
+import 'react-contexify/dist/ReactContexify.css';
 
 interface Task {
   id: number;
@@ -8,21 +10,39 @@ interface Task {
   notes: string;
 }
 
-interface TaskPageProps {
+interface TaskManagerPageProps {
   tasks: Task[];
   selectedTask: Task | null;
   setSelectedTask: (task: Task | null) => void;
   updateTask: (id: number, notes: string) => void;
-  deleteTask: (id: number) => void;
+  trashTask: (id: number) => void;
+  renameTask: (id: number, title: string) => void;
 }
 
-const TaskPage: React.FC<TaskPageProps> = ({
+const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
   tasks,
   selectedTask,
   setSelectedTask,
   updateTask,
-  deleteTask
+  trashTask,
+  renameTask
 }) => {
+  const { show } = useContextMenu({
+    id: 'task-context-menu'
+  });
+
+  const [newTitle, setNewTitle] = useState<string>('');
+  const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (editingTaskId !== null) {
+      const task = tasks.find((task) => task.id === editingTaskId);
+      if (task) {
+        setNewTitle(task.title);
+      }
+    }
+  }, [editingTaskId]);
+
   const handleTaskClick = (taskId: number): void => {
     const task = tasks.find((task) => task.id === taskId);
     if (task) {
@@ -36,11 +56,48 @@ const TaskPage: React.FC<TaskPageProps> = ({
     }
   };
 
+  const handleRenameTask = (taskId: number, title: string) => {
+    renameTask(taskId, title);
+    setEditingTaskId(null);
+  };
+
+  const handleContextMenu = (event: React.MouseEvent, taskId: number) => {
+    event.preventDefault();
+    setSelectedTask(tasks.find((task) => task.id === taskId) || null);
+    show({
+      event,
+      props: { taskId }
+    });
+  };
+
+  const handleContextMenuEllipsis = (event: React.MouseEvent, taskId: number) => {
+    event.preventDefault();
+    setSelectedTask(tasks.find((task) => task.id === taskId) || null);
+    show({
+      event,
+      props: { taskId }
+    });
+  };
+
+  const handleRenameClick = (taskId: number) => {
+    setEditingTaskId(taskId);
+  };
+
   return (
     <Sidebar>
       <div className="flex p-4 bg-gray-100 min-h-screen w-full">
         <div className="w-1/3 pr-4">
-          <TaskList tasks={tasks} handleTaskClick={handleTaskClick} selectedTask={selectedTask} />
+          <TaskList
+            tasks={tasks}
+            handleTaskClick={handleTaskClick}
+            selectedTask={selectedTask}
+            onContextMenu={handleContextMenu}
+            editingTaskId={editingTaskId}
+            setNewTitle={setNewTitle}
+            newTitle={newTitle}
+            handleRenameTask={handleRenameTask}
+            handleContextMenuEllipsis={handleContextMenuEllipsis}
+          />
         </div>
         <div className="w-2/3 pl-4">
           {selectedTask && (
@@ -52,18 +109,16 @@ const TaskPage: React.FC<TaskPageProps> = ({
                 placeholder="Add notes here..."
                 className="border border-gray-300 rounded p-2 w-full h-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-              <button
-                onClick={() => deleteTask(selectedTask.id)}
-                className="bg-red-500 hover:bg-red-600 text-white rounded p-2 w-full mt-2 transition duration-300"
-              >
-                Delete Task
-              </button>
             </>
           )}
         </div>
       </div>
+      <Menu id="task-context-menu">
+        <Item onClick={({ props }) => handleRenameClick(props.taskId)}>Rename</Item>
+        <Item onClick={({ props }) => trashTask(props.taskId)}>Move to Trash</Item>
+      </Menu>
     </Sidebar>
   );
 };
 
-export default TaskPage;
+export default TaskManagerPage;
