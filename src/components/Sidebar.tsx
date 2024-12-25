@@ -7,8 +7,8 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ children }) => {
   return (
-    <div className="flex h-screen bg-gradient-to-r from-blue-500 to-purple-600">
-      <div className="w-1/5 bg-white p-4 flex flex-col justify-between shadow-md">
+    <div className="flex h-screen bg-white">
+      <div className="w-1/6 bg-white p-4 flex flex-col justify-between shadow-md">
         <div>
           <div className="text-center mb-6">
             <h2 className="text-xl font-bold text-blue-600">Notefier</h2>
@@ -45,7 +45,7 @@ const Sidebar: React.FC<SidebarProps> = ({ children }) => {
             </Link>
         </div>
       </div>
-      <div className="flex-1 flex items-center justify-center">{children}</div>
+      <div className="flex-1 p-1 ">{children}</div>
     </div>
   );
 };
