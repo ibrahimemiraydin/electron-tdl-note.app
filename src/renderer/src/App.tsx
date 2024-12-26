@@ -4,6 +4,8 @@ import HomePage from '../../pages/HomePage';
 import TaskPage from '../../pages/TaskManagerPage';
 import TaskListPage from '../../pages/TaskListPage';
 import TrashPage from '../../pages/TrashPage';
+import Sidebar from '../../components/Sidebar';  // Ensure this path is correct
+import SettingsModal from '../../components/SettingsModal';
 
 interface Task {
   id: number;
@@ -15,6 +17,7 @@ const App: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [trashedTasks, setTrashedTasks] = useState<Task[]>([]);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [, setIsSettingsOpen] = useState(false);
 
   useEffect(() => {
     window.electron.ipcRenderer.invoke('get-all-tasks').then((loadedTasks: Task[]) => {
@@ -75,38 +78,54 @@ const App: React.FC = () => {
 
   return (
     <Router>
-      <Routes>
-        <Route
-          path="/"
-          element={<HomePage addTask={addTask} recentTasks={tasks.slice(0, 3)} />}
-        />
-        <Route
-          path="/tasks"
-          element={
-            <TaskPage
-              tasks={tasks}
-              selectedTask={selectedTask}
-              setSelectedTask={setSelectedTask}
-              updateTask={updateTask}
-              trashTask={trashTask}
-              renameTask={renameTask}
+      <div className="flex h-screen bg-stone-50 dark:bg-slate-800">
+        <Sidebar>
+          <Routes>
+            <Route
+              path="/"
+              element={<HomePage addTask={addTask} recentTasks={tasks.slice(0, 3)} trashTask={trashTask} renameTask={renameTask} />}
             />
-          }
-        />
-        <Route
-          path="/task-list"
-          element={<TaskListPage tasks={tasks} />}
-        />
-        <Route
-          path="/trash"
-          element={
-            <TrashPage
-              trashedTasks={trashedTasks}
-              deleteTaskPermanently={deleteTaskPermanently}
+            <Route
+              path="/tasks"
+              element={
+                <TaskPage
+                  tasks={tasks}
+                  selectedTask={selectedTask}
+                  setSelectedTask={setSelectedTask}
+                  updateTask={updateTask}
+                  trashTask={trashTask}
+                  renameTask={renameTask}
+                />
+              }
             />
-          }
-        />
-      </Routes>
+            <Route
+              path="/task-list"
+              element={<TaskListPage tasks={tasks} />}
+            />
+            <Route
+              path="/trash"
+              element={
+                <TrashPage
+                  trashedTasks={trashedTasks}
+                  deleteTaskPermanently={deleteTaskPermanently}
+                />
+              }
+            />
+            <Route
+              path="/settings/my-account"
+              element={<SettingsModal isOpen={true} onClose={() => setIsSettingsOpen(false)} />}
+            />
+            <Route
+              path="/settings/general"
+              element={<SettingsModal isOpen={true} onClose={() => setIsSettingsOpen(false)} />}
+            />
+            <Route
+              path="/settings/language"
+              element={<SettingsModal isOpen={true} onClose={() => setIsSettingsOpen(false)} />}
+            />
+          </Routes>
+        </Sidebar>
+      </div>
     </Router>
   );
 };

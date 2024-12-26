@@ -2,11 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --color-light-bg: theme('colors.sky.100');
+  --color-light-text: theme('colors.sky.900');
+  --color-dark-bg: theme('colors.slate.800');
+  --color-dark-text: theme('colors.slate.200');
+}
+
 body {
-    font-family: 'Montserrat', sans-serif;
-  }
-  
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Montserrat', sans-serif;
-  }
-  
+  font-family: 'Montserrat', sans-serif;
+  @apply bg-light-bg text-light-text dark:bg-dark-bg dark:text-dark-text;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Montserrat', sans-serif;
+}

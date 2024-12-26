@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import Sidebar from '../components/Sidebar';
 import TaskList from '../components/TaskList';
 import { Menu, Item, useContextMenu } from 'react-contexify';
 import 'react-contexify/dist/ReactContexify.css';
+import { useLocation } from 'react-router-dom';
 
 interface Task {
   id: number;
@@ -31,11 +31,13 @@ const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
     id: 'task-context-menu'
   });
 
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const taskId = queryParams.get('taskId');
+
   const [newTitle, setNewTitle] = useState<string>('');
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
-  const [markdownText, setMarkdownText] = useState<string>('');
-
-  const editableDivRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (editingTaskId !== null) {
@@ -44,35 +46,47 @@ const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
         setNewTitle(task.title);
       }
     }
-  }, [editingTaskId]);
+  }, [editingTaskId, tasks]);
 
   useEffect(() => {
-    if (selectedTask) {
-      setMarkdownText(selectedTask.notes);
-      if (editableDivRef.current) {
-        editableDivRef.current.innerText = selectedTask.notes;
+    if (taskId) {
+      const task = tasks.find((task) => task.id === Number(taskId));
+      if (task) {
+        setSelectedTask(task);
       }
     }
-  }, [selectedTask]);
+  }, [taskId, tasks, setSelectedTask]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (inputRef.current && !inputRef.current.contains(event.target as Node)) {
+        if (editingTaskId !== null) {
+          handleRenameTask(editingTaskId, newTitle);
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [editingTaskId, newTitle]);
 
   const handleTaskClick = (taskId: number): void => {
     const task = tasks.find((task) => task.id === taskId);
     if (task) {
       setSelectedTask(task);
-    }
-  };
-
-  const handleMarkdownChange = (event: React.FormEvent<HTMLDivElement>) => {
-    const value = event.currentTarget.innerText;
-    setMarkdownText(value);
-    if (selectedTask) {
-      updateTask(selectedTask.id, value);
+      setEditingTaskId(null);
     }
   };
 
   const handleRenameTask = (taskId: number, title: string) => {
     renameTask(taskId, title);
     setEditingTaskId(null);
+    if (selectedTask && selectedTask.id === taskId) {
+      const updatedTask = { ...selectedTask, title };
+      setSelectedTask(updatedTask);
+    }
   };
 
   const handleContextMenu = (event: React.MouseEvent, taskId: number) => {
@@ -98,9 +112,9 @@ const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
   };
 
   return (
-    <Sidebar>
-      <div className="flex p-4 bg-gray-100 min-h-screen w-full">
-        <div className="w-1/3 pr-4">
+    <div className="bg-stone-50 dark:bg-slate-800 w-full">
+      <div className="flex p-4">
+        <div className="w-1/4 pr-4">
           <TaskList
             tasks={tasks}
             handleTaskClick={handleTaskClick}
@@ -113,26 +127,40 @@ const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
             handleContextMenuEllipsis={handleContextMenuEllipsis}
           />
         </div>
-        <div className="w-2/3 pl-4">
+        <div className="w-3/4 pl-4 flex flex-col">
           {selectedTask && (
             <>
-              <h2 className="text-xl font-bold mb-4 text-blue-600">Task Notes for "{selectedTask.title}"</h2>
-              <div
-                ref={editableDivRef}
-                contentEditable
-                className="border border-gray-300 rounded p-2 w-full h-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                onInput={handleMarkdownChange}
-                dangerouslySetInnerHTML={{ __html: markdownText }}
-              />
+              <div className="flex justify-between items-center mb-4">
+                {editingTaskId === selectedTask.id ? (
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={newTitle}
+                    onChange={(e) => setNewTitle(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleRenameTask(editingTaskId, newTitle);
+                      }
+                    }}
+                    className="border p-2 w-full dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                  />
+                ) : (
+                  <h2 className="text-xl font-bold text-stone-950 dark:text-slate-200">{selectedTask.title}</h2>
+                )}
+                <button onClick={() => handleContextMenuEllipsis(event as any, selectedTask.id)} className="text-stone-950 dark:text-slate-200 hover:text-gray-700 dark:hover:text-slate-200">
+                  &#x2022;&#x2022;&#x2022;
+                </button>
+              </div>
+              <hr className="mb-4 dark:border-slate-600" />
             </>
           )}
         </div>
       </div>
-      <Menu id="task-context-menu">
+      <Menu id="task-context-menu" className="dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200">
         <Item onClick={({ props }) => handleRenameClick(props.taskId)}>Rename</Item>
         <Item onClick={({ props }) => trashTask(props.taskId)}>Move to Trash</Item>
       </Menu>
-    </Sidebar>
+    </div>
   );
 };
 
