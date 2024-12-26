@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Sidebar from '../components/Sidebar';
 import TaskList from '../components/TaskList';
 import { Menu, Item, useContextMenu } from 'react-contexify';
@@ -33,6 +33,9 @@ const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
 
   const [newTitle, setNewTitle] = useState<string>('');
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
+  const [markdownText, setMarkdownText] = useState<string>('');
+
+  const editableDivRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (editingTaskId !== null) {
@@ -43,6 +46,15 @@ const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
     }
   }, [editingTaskId]);
 
+  useEffect(() => {
+    if (selectedTask) {
+      setMarkdownText(selectedTask.notes);
+      if (editableDivRef.current) {
+        editableDivRef.current.innerText = selectedTask.notes;
+      }
+    }
+  }, [selectedTask]);
+
   const handleTaskClick = (taskId: number): void => {
     const task = tasks.find((task) => task.id === taskId);
     if (task) {
@@ -50,9 +62,11 @@ const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
     }
   };
 
-  const handleNoteChange = (notes: string): void => {
+  const handleMarkdownChange = (event: React.FormEvent<HTMLDivElement>) => {
+    const value = event.currentTarget.innerText;
+    setMarkdownText(value);
     if (selectedTask) {
-      updateTask(selectedTask.id, notes);
+      updateTask(selectedTask.id, value);
     }
   };
 
@@ -103,11 +117,12 @@ const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
           {selectedTask && (
             <>
               <h2 className="text-xl font-bold mb-4 text-blue-600">Task Notes for "{selectedTask.title}"</h2>
-              <textarea
-                value={selectedTask.notes}
-                onChange={(e) => handleNoteChange(e.target.value)}
-                placeholder="Add notes here..."
+              <div
+                ref={editableDivRef}
+                contentEditable
                 className="border border-gray-300 rounded p-2 w-full h-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onInput={handleMarkdownChange}
+                dangerouslySetInnerHTML={{ __html: markdownText }}
               />
             </>
           )}
