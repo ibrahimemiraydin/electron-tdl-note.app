@@ -1,26 +1,21 @@
 import React, { useState, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import SettingsModal from './SettingsModal';
-import ProfileContextMenu from './ProfileContextMenu';
 
 interface SidebarProps {
   children: React.ReactNode;
+  profilePhoto: string;
+  name: string;
+  updateProfile: (profilePhoto: string, name: string) => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ children }) => {
+const Sidebar: React.FC<SidebarProps> = ({ children, profilePhoto, name, updateProfile }) => {
   const location = useLocation();
   const isActive = (path: string) => location.pathname === path;
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isProfileMenuVisible, setProfileMenuVisible] = useState(false);
   const profileButtonRef = useRef<HTMLButtonElement>(null);
 
-  const toggleProfileMenu = () => {
-    setProfileMenuVisible((prev) => !prev);
-  };
 
-  const closeProfileMenu = () => {
-    setProfileMenuVisible(false);
-  };
 
   return (
     <div className="flex h-screen bg-stone-50 dark:bg-slate-800 relative">
@@ -28,19 +23,11 @@ const Sidebar: React.FC<SidebarProps> = ({ children }) => {
         <div>
           <button
             ref={profileButtonRef}
-            onClick={toggleProfileMenu}
             className="flex items-center mb-6 p-4 w-full text-left hover:bg-gray-200 dark:hover:bg-slate-600 transition duration-300"
           >
-            <img src="/path/to/profile-picture.jpg" alt="Profile" className="w-10 h-10 rounded-full mr-2" />
-            <span className="text-stone-950 dark:text-slate-200 font-bold">İbrahim Emir Aydın</span>
+            <img src={profilePhoto} alt="Profile" className="w-10 h-10 rounded-full mr-2" />
+            <span className="text-stone-950 dark:text-slate-200 font-bold">{name}</span>
           </button>
-          {isProfileMenuVisible && (
-            <ProfileContextMenu
-              isVisible={isProfileMenuVisible}
-              onClose={closeProfileMenu}
-              buttonRef={profileButtonRef}
-            />
-          )}
           <div className="space-y-2">
             <button
               className={`hover:bg-gray-200 dark:hover:bg-slate-600 text-stone-950 dark:text-slate-200 rounded p-2 w-full text-left transition duration-300 ${
@@ -102,7 +89,7 @@ const Sidebar: React.FC<SidebarProps> = ({ children }) => {
         </div>
       </div>
       <div className="flex-1 p-4 bg-stone-50 dark:bg-slate-800">{children}</div>
-      <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+      <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} updateProfile={updateProfile} />
     </div>
   );
 };

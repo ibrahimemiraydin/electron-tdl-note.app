@@ -12,6 +12,7 @@ interface Task {
 
 interface TaskManagerPageProps {
   tasks: Task[];
+  addTask: (title: string) => void;
   selectedTask: Task | null;
   setSelectedTask: (task: Task | null) => void;
   updateTask: (id: number, notes: string) => void;
@@ -21,6 +22,7 @@ interface TaskManagerPageProps {
 
 const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
   tasks,
+  addTask,
   selectedTask,
   setSelectedTask,
   updateTask,
@@ -37,6 +39,8 @@ const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
 
   const [newTitle, setNewTitle] = useState<string>('');
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
+  const [noteContent, setNoteContent] = useState<string>('');
+  const [taskInput, setTaskInput] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -53,6 +57,7 @@ const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
       const task = tasks.find((task) => task.id === Number(taskId));
       if (task) {
         setSelectedTask(task);
+        setNoteContent(task.notes);
       }
     }
   }, [taskId, tasks, setSelectedTask]);
@@ -77,6 +82,7 @@ const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
     if (task) {
       setSelectedTask(task);
       setEditingTaskId(null);
+      setNoteContent(task.notes);
     }
   };
 
@@ -86,6 +92,14 @@ const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
     if (selectedTask && selectedTask.id === taskId) {
       const updatedTask = { ...selectedTask, title };
       setSelectedTask(updatedTask);
+    }
+  };
+
+  const handleNotesChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const content = event.target.value;
+    setNoteContent(content);
+    if (selectedTask) {
+      updateTask(selectedTask.id, content);
     }
   };
 
@@ -111,50 +125,60 @@ const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
     setEditingTaskId(taskId);
   };
 
+  const handleInputClick = () => {
+    setSelectedTask(null);
+    setNoteContent('');
+  };
+
+  const handleAddTask = () => {
+    if (taskInput.trim()) {
+      addTask(taskInput);
+      setTaskInput('');
+    }
+  };
+
   return (
-    <div className="bg-stone-50 dark:bg-slate-800 w-full">
-      <div className="flex p-4">
-        <div className="w-1/4 pr-4">
-          <TaskList
-            tasks={tasks}
-            handleTaskClick={handleTaskClick}
-            selectedTask={selectedTask}
-            onContextMenu={handleContextMenu}
-            editingTaskId={editingTaskId}
-            setNewTitle={setNewTitle}
-            newTitle={newTitle}
-            handleRenameTask={handleRenameTask}
-            handleContextMenuEllipsis={handleContextMenuEllipsis}
+    <div className="bg-stone-50 dark:bg-slate-800 h-full w-full flex">
+      <div className="w-1/4 p-4">
+        <div className="mb-4">
+          <input
+            type="text"
+            value={taskInput}
+            onChange={(e) => setTaskInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleAddTask();
+              }
+            }}
+            onClick={handleInputClick}
+            placeholder="New Task"
+            className="border p-2 w-full dark:bg-slate-700 dark:border-slate-600 dark:text-white mb-2"
           />
+          <button
+            onClick={handleAddTask}
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white p-2 rounded dark:bg-blue-700"
+          >
+            Add Task
+          </button>
         </div>
-        <div className="w-3/4 pl-4 flex flex-col">
-          {selectedTask && (
-            <>
-              <div className="flex justify-between items-center mb-4">
-                {editingTaskId === selectedTask.id ? (
-                  <input
-                    ref={inputRef}
-                    type="text"
-                    value={newTitle}
-                    onChange={(e) => setNewTitle(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        handleRenameTask(editingTaskId, newTitle);
-                      }
-                    }}
-                    className="border p-2 w-full dark:bg-slate-700 dark:border-slate-600 dark:text-white"
-                  />
-                ) : (
-                  <h2 className="text-xl font-bold text-stone-950 dark:text-slate-200">{selectedTask.title}</h2>
-                )}
-                <button onClick={() => handleContextMenuEllipsis(event as any, selectedTask.id)} className="text-stone-950 dark:text-slate-200 hover:text-gray-700 dark:hover:text-slate-200">
-                  &#x2022;&#x2022;&#x2022;
-                </button>
-              </div>
-              <hr className="mb-4 dark:border-slate-600" />
-            </>
-          )}
-        </div>
+        <TaskList
+          tasks={tasks}
+          handleTaskClick={handleTaskClick}
+          selectedTask={selectedTask}
+          onContextMenu={handleContextMenu}
+          editingTaskId={editingTaskId}
+          setNewTitle={setNewTitle}
+          newTitle={newTitle}
+          handleRenameTask={handleRenameTask}
+          handleContextMenuEllipsis={handleContextMenuEllipsis}
+        />
+      </div>
+      <div className="flex-1 p-4 bg-stone-50 dark:bg-slate-800">
+        <textarea
+          value={noteContent}
+          onChange={handleNotesChange}
+          className="w-full h-full p-2 border dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+        />
       </div>
       <Menu id="task-context-menu" className="dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200">
         <Item onClick={({ props }) => handleRenameClick(props.taskId)}>Rename</Item>

@@ -4,7 +4,7 @@ import HomePage from '../../pages/HomePage';
 import TaskPage from '../../pages/TaskManagerPage';
 import TaskListPage from '../../pages/TaskListPage';
 import TrashPage from '../../pages/TrashPage';
-import Sidebar from '../../components/Sidebar';  // Ensure this path is correct
+import Sidebar from '../../components/Sidebar';
 import SettingsModal from '../../components/SettingsModal';
 
 interface Task {
@@ -18,6 +18,8 @@ const App: React.FC = () => {
   const [trashedTasks, setTrashedTasks] = useState<Task[]>([]);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [, setIsSettingsOpen] = useState(false);
+  const [profilePhoto, setProfilePhoto] = useState<string>('');
+  const [name, setName] = useState<string>('');
 
   useEffect(() => {
     window.electron.ipcRenderer.invoke('get-all-tasks').then((loadedTasks: Task[]) => {
@@ -76,10 +78,15 @@ const App: React.FC = () => {
     });
   };
 
+  const updateProfile = (newProfilePhoto: string, newName: string) => {
+    setProfilePhoto(newProfilePhoto);
+    setName(newName);
+  };
+
   return (
     <Router>
-      <div className="flex h-screen bg-stone-50 dark:bg-slate-800">
-        <Sidebar>
+      <div className="bg-stone-50 dark:bg-slate-800">
+        <Sidebar profilePhoto={profilePhoto} name={name} updateProfile={updateProfile}>
           <Routes>
             <Route
               path="/"
@@ -90,6 +97,7 @@ const App: React.FC = () => {
               element={
                 <TaskPage
                   tasks={tasks}
+                  addTask={addTask}
                   selectedTask={selectedTask}
                   setSelectedTask={setSelectedTask}
                   updateTask={updateTask}
@@ -113,15 +121,15 @@ const App: React.FC = () => {
             />
             <Route
               path="/settings/my-account"
-              element={<SettingsModal isOpen={true} onClose={() => setIsSettingsOpen(false)} />}
+              element={<SettingsModal isOpen={true} onClose={() => setIsSettingsOpen(false)} updateProfile={updateProfile} />}
             />
             <Route
               path="/settings/general"
-              element={<SettingsModal isOpen={true} onClose={() => setIsSettingsOpen(false)} />}
+              element={<SettingsModal isOpen={true} onClose={() => setIsSettingsOpen(false)} updateProfile={updateProfile} />}
             />
             <Route
               path="/settings/language"
-              element={<SettingsModal isOpen={true} onClose={() => setIsSettingsOpen(false)} />}
+              element={<SettingsModal isOpen={true} onClose={() => setIsSettingsOpen(false)} updateProfile={updateProfile} />}
             />
           </Routes>
         </Sidebar>

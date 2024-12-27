@@ -5,9 +5,10 @@ interface ProfileContextMenuProps {
   isVisible: boolean;
   onClose: () => void;
   buttonRef: React.RefObject<HTMLButtonElement>;
+  onSettingsOpen: () => void;
 }
 
-const ProfileContextMenu: React.FC<ProfileContextMenuProps> = ({ isVisible, onClose, buttonRef }) => {
+const ProfileContextMenu: React.FC<ProfileContextMenuProps> = ({ isVisible, onClose, buttonRef, onSettingsOpen }) => {
   const menuRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
@@ -35,11 +36,13 @@ const ProfileContextMenu: React.FC<ProfileContextMenuProps> = ({ isVisible, onCl
 
   const handleProfileClick = () => {
     navigate('/settings/my-account');
+    onSettingsOpen();
     onClose();
   };
 
   const handleSettingsClick = () => {
     navigate('/settings/general');
+    onSettingsOpen();
     onClose();
   };
 
