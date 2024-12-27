@@ -29,6 +29,13 @@ const App: React.FC = () => {
     window.electron.ipcRenderer.invoke('get-trashed-tasks').then((loadedTasks: Task[]) => {
       setTrashedTasks(loadedTasks);
     });
+
+    window.electron.ipcRenderer.invoke('get-user').then((user) => {
+      if (user) {
+        setProfilePhoto(user.profilePhoto || '');
+        setName(user.name || '');
+      }
+    });
   }, []);
 
   const addTask = (title: string, notes: string = ''): void => {
@@ -79,8 +86,10 @@ const App: React.FC = () => {
   };
 
   const updateProfile = (newProfilePhoto: string, newName: string) => {
-    setProfilePhoto(newProfilePhoto);
-    setName(newName);
+    window.electron.ipcRenderer.invoke('update-user', newProfilePhoto, newName).then(() => {
+      setProfilePhoto(newProfilePhoto);
+      setName(newName);
+    });
   };
 
   return (

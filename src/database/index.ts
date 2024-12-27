@@ -25,6 +25,16 @@ try {
   }
 }
 
+// Create or update the user table to store profile photo and name
+db.prepare(`
+  CREATE TABLE IF NOT EXISTS user (
+    id INTEGER PRIMARY KEY,
+    profilePhoto TEXT,
+    name TEXT
+  )
+`).run();
+
+// Functions to handle tasks
 export const getAllTasks = () => {
   return db.prepare('SELECT * FROM tasks WHERE isTrashed = 0').all();
 };
@@ -51,4 +61,13 @@ export const deleteTaskPermanently = (id: number) => {
 
 export const renameTask = (id: number, title: string) => {
   return db.prepare('UPDATE tasks SET title = ? WHERE id = ?').run(title, id);
+};
+
+// Functions to handle user profile
+export const getUser = () => {
+  return db.prepare('SELECT profilePhoto, name FROM user WHERE id = 1').get();
+};
+
+export const updateUser = (profilePhoto: string, name: string) => {
+  return db.prepare('INSERT OR REPLACE INTO user (id, profilePhoto, name) VALUES (1, ?, ?)').run(profilePhoto, name);
 };
