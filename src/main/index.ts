@@ -2,7 +2,8 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron';
 import { join } from 'path';
 import { electronApp, optimizer, is } from '@electron-toolkit/utils';
 import icon from '../../resources/icon.png?asset';
-import { getAllTasks, addTask, updateTask, trashTask, deleteTaskPermanently, renameTask, getTrashedTasks, getUser, updateUser } from '../database'; // Import database functions
+import { getAllTasks, addTask, updateTask, trashTask, deleteTaskPermanently, renameTask, getTrashedTasks } from '../database'; // Import database functions
+import { getSetting, setSetting } from '../database/settings';
 
 function createWindow(): void {
   // Create the browser window.
@@ -79,8 +80,8 @@ ipcMain.handle('trash-task', (_, id) => trashTask(id));
 ipcMain.handle('delete-task-permanently', (_, id) => deleteTaskPermanently(id));
 ipcMain.handle('rename-task', (_, id, title) => renameTask(id, title));
 ipcMain.handle('get-trashed-tasks', () => getTrashedTasks()); // Add this handler
-ipcMain.handle('get-user', async () => { return getUser(); });
-ipcMain.handle('update-user', async (_, profilePhoto, name) => { return updateUser(profilePhoto, name); });
+ipcMain.handle('get-setting', async (_, key) => { return getSetting(key); });
+ipcMain.handle('set-setting', async (_, key, value) => { return setSetting(key, value); });
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.

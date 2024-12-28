@@ -4,17 +4,20 @@ const ThemeSwitch: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
-    const currentTheme = localStorage.getItem('theme');
-    if (currentTheme) {
-      setIsDarkMode(currentTheme === 'dark');
-      document.documentElement.classList.toggle('dark', currentTheme === 'dark');
-    }
+    // Load the theme setting from the database when the component mounts
+    window.electron.ipcRenderer.invoke('get-setting', 'theme').then((savedTheme) => {
+      if (savedTheme) {
+        setIsDarkMode(savedTheme.value === 'dark');
+        document.documentElement.classList.toggle('dark', savedTheme.value === 'dark');
+      }
+    });
   }, []);
 
   const toggleTheme = () => {
     const newTheme = isDarkMode ? 'light' : 'dark';
     setIsDarkMode(!isDarkMode);
-    localStorage.setItem('theme', newTheme);
+    // Save the new theme setting to the database
+    window.electron.ipcRenderer.invoke('set-setting', 'theme', newTheme);
     document.documentElement.classList.toggle('dark', newTheme === 'dark');
   };
 

@@ -17,7 +17,7 @@ const App: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [trashedTasks, setTrashedTasks] = useState<Task[]>([]);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [, setIsSettingsOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [profilePhoto, setProfilePhoto] = useState<string>('');
   const [name, setName] = useState<string>('');
 
@@ -30,10 +30,23 @@ const App: React.FC = () => {
       setTrashedTasks(loadedTasks);
     });
 
-    window.electron.ipcRenderer.invoke('get-user').then((user) => {
-      if (user) {
-        setProfilePhoto(user.profilePhoto || '');
-        setName(user.name || '');
+    window.electron.ipcRenderer.invoke('get-setting', 'profilePhoto').then((profilePhoto) => {
+      if (profilePhoto) {
+        setProfilePhoto(profilePhoto.value);
+      }
+    });
+
+    window.electron.ipcRenderer.invoke('get-setting', 'name').then((name) => {
+      if (name) {
+        setName(name.value);
+      }
+    });
+
+    // Load and apply the theme setting when the app starts
+    window.electron.ipcRenderer.invoke('get-setting', 'theme').then((savedTheme) => {
+      if (savedTheme) {
+        const theme = savedTheme.value;
+        document.documentElement.classList.toggle('dark', theme === 'dark');
       }
     });
   }, []);
@@ -86,8 +99,10 @@ const App: React.FC = () => {
   };
 
   const updateProfile = (newProfilePhoto: string, newName: string) => {
-    window.electron.ipcRenderer.invoke('update-user', newProfilePhoto, newName).then(() => {
+    window.electron.ipcRenderer.invoke('set-setting', 'profilePhoto', newProfilePhoto).then(() => {
       setProfilePhoto(newProfilePhoto);
+    });
+    window.electron.ipcRenderer.invoke('set-setting', 'name', newName).then(() => {
       setName(newName);
     });
   };
@@ -130,15 +145,15 @@ const App: React.FC = () => {
             />
             <Route
               path="/settings/my-account"
-              element={<SettingsModal isOpen={true} onClose={() => setIsSettingsOpen(false)} updateProfile={updateProfile} />}
+              element={<SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} updateProfile={updateProfile} />}
             />
             <Route
               path="/settings/general"
-              element={<SettingsModal isOpen={true} onClose={() => setIsSettingsOpen(false)} updateProfile={updateProfile} />}
+              element={<SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} updateProfile={updateProfile} />}
             />
             <Route
               path="/settings/language"
-              element={<SettingsModal isOpen={true} onClose={() => setIsSettingsOpen(false)} updateProfile={updateProfile} />}
+              element={<SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} updateProfile={updateProfile} />}
             />
           </Routes>
         </Sidebar>

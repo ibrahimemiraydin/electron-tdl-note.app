@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
 import ThemeSwitch from './ThemeSwitch';
 
 interface SettingsModalProps {
@@ -9,22 +8,26 @@ interface SettingsModalProps {
 }
 
 const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, updateProfile }) => {
-  const location = useLocation();
   const [activeCategory, setActiveCategory] = useState('My Account');
   const [profilePhoto, setProfilePhoto] = useState<string>('');
   const [name, setName] = useState<string>('');
 
   useEffect(() => {
-    if (location.pathname.includes('my-account')) {
-      setActiveCategory('My Account');
-    } else if (location.pathname.includes('general')) {
-      setActiveCategory('General');
-    } else if (location.pathname.includes('language')) {
-      setActiveCategory('Language');
+    if (isOpen) {
+      setActiveCategory('My Account'); // Default category
+      // Load settings when the modal is opened
+      window.electron.ipcRenderer.invoke('get-setting', 'profilePhoto').then((profilePhoto) => {
+        if (profilePhoto) {
+          setProfilePhoto(profilePhoto.value);
+        }
+      });
+      window.electron.ipcRenderer.invoke('get-setting', 'name').then((name) => {
+        if (name) {
+          setName(name.value);
+        }
+      });
     }
-  }, [location.pathname]);
-
-  if (!isOpen) return null;
+  }, [isOpen]);
 
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
@@ -50,7 +53,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, updatePr
 
   const handleApplyChanges = () => {
     updateProfile(profilePhoto, name);
+    onClose();
   };
+
+  if (!isOpen) return null;
 
   return (
     <div
@@ -85,7 +91,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, updatePr
               </button>
             </li>
           </ul>
-          <button onClick={onClose} className="bg-blue-500 hover:bg-blue-600 text-white rounded p-2 dark:bg-blue-700">
+          <button onClick={onClose} className="mt-auto bg-blue-500 hover:bg-blue-600 text-white rounded p-2 dark:bg-blue-700">
             Close
           </button>
         </div>
@@ -128,10 +134,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, updatePr
           {activeCategory === 'General' && (
             <div>
               <h2 className="text-2xl mb-4">General Settings</h2>
-              <div className="flex items-center justify-between mb-4">
-                <label className="text-gray-700 dark:text-gray-300">Theme</label>
-                <ThemeSwitch />
-              </div>
+              <ThemeSwitch />
             </div>
           )}
           {activeCategory === 'Language' && <div>Language Settings</div>}
