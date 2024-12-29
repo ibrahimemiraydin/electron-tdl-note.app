@@ -74,7 +74,15 @@ app.on('window-all-closed', () => {
 
 // IPC Handlers for database operations
 ipcMain.handle('get-all-tasks', () => getAllTasks());
-ipcMain.handle('add-task', (_, title, notes) => addTask(title, notes));
+ipcMain.handle('add-task', (_, title, notes) => {
+
+  const createdAt = new Date().toISOString();
+
+  const lastModifiedAt = createdAt;
+
+  return addTask(title, notes, createdAt, lastModifiedAt);
+
+});
 ipcMain.handle('update-task', (_, id, notes) => updateTask(id, notes));
 ipcMain.handle('trash-task', (_, id) => trashTask(id));
 ipcMain.handle('delete-task-permanently', (_, id) => deleteTaskPermanently(id));

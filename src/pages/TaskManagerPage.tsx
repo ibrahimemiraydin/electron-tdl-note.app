@@ -8,6 +8,8 @@ interface Task {
   id: number;
   title: string;
   notes: string;
+  createdAt: string;
+  lastModifiedAt: string;
 }
 
 interface TaskManagerPageProps {
@@ -156,7 +158,7 @@ const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
           />
           <button
             onClick={handleAddTask}
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white p-2 rounded dark:bg-blue-700"
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white p-2 rounded dark:bg-blue-700 dark:hover:bg-blue-800"
           >
             Add Task
           </button>
@@ -180,7 +182,7 @@ const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
           className="w-full h-full p-2 border dark:bg-slate-700 dark:border-slate-600 dark:text-white"
         />
       </div>
-      <Menu id="task-context-menu" className="dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200">
+      <Menu id="task-context-menu" className="dark:bg-slate-400 dark:border-slate-300 dark:text-slate-200">
         <Item onClick={({ props }) => handleRenameClick(props.taskId)}>Rename</Item>
         <Item onClick={({ props }) => trashTask(props.taskId)}>Move to Trash</Item>
       </Menu>

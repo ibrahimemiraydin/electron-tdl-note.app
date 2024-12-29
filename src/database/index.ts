@@ -6,20 +6,40 @@ import { app } from 'electron';
 const dbPath = path.join(app.getPath('userData'), 'tasks.db');
 const db = new Database(dbPath);
 
-// Create or update the tasks table to include the isTrashed column
+// Create or update the tasks table to include the necessary columns
 db.prepare(`
   CREATE TABLE IF NOT EXISTS tasks (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
     notes TEXT,
-    isTrashed INTEGER DEFAULT 0
+    isTrashed INTEGER DEFAULT 0,
+    createdAt TEXT DEFAULT (datetime('now')),
+    lastModifiedAt TEXT DEFAULT (datetime('now'))
   )
 `).run();
 
 // Add isTrashed column if it doesn't exist
 try {
   db.prepare("ALTER TABLE tasks ADD COLUMN isTrashed INTEGER DEFAULT 0").run();
-} catch (error: any) {  // Explicitly type error as any
+} catch (error: any) {
+  if (!error.message.includes('duplicate column name')) {
+    throw error;
+  }
+}
+
+// Add createdAt column if it doesn't exist
+try {
+  db.prepare("ALTER TABLE tasks ADD COLUMN createdAt TEXT DEFAULT (datetime('now'))").run();
+} catch (error: any) {
+  if (!error.message.includes('duplicate column name')) {
+    throw error;
+  }
+}
+
+// Add lastModifiedAt column if it doesn't exist
+try {
+  db.prepare("ALTER TABLE tasks ADD COLUMN lastModifiedAt TEXT DEFAULT (datetime('now'))").run();
+} catch (error: any) {
   if (!error.message.includes('duplicate column name')) {
     throw error;
   }
@@ -34,12 +54,13 @@ export const getTrashedTasks = () => {
   return db.prepare('SELECT * FROM tasks WHERE isTrashed = 1').all();
 };
 
-export const addTask = (title: string, notes: string) => {
-  return db.prepare('INSERT INTO tasks (title, notes) VALUES (?, ?)').run(title, notes);
+export const addTask = (title: string, notes: string, createdAt: string, lastModifiedAt: string) => {
+  return db.prepare('INSERT INTO tasks (title, notes, createdAt, lastModifiedAt) VALUES (?, ?, ?, ?)').run(title, notes, createdAt, lastModifiedAt);
 };
 
 export const updateTask = (id: number, notes: string) => {
-  return db.prepare('UPDATE tasks SET notes = ? WHERE id = ?').run(notes, id);
+  const lastModifiedAt = new Date().toISOString();
+  return db.prepare('UPDATE tasks SET notes = ?, lastModifiedAt = ? WHERE id = ?').run(notes, lastModifiedAt, id);
 };
 
 export const trashTask = (id: number) => {
@@ -51,5 +72,6 @@ export const deleteTaskPermanently = (id: number) => {
 };
 
 export const renameTask = (id: number, title: string) => {
-  return db.prepare('UPDATE tasks SET title = ? WHERE id = ?').run(title, id);
+  const lastModifiedAt = new Date().toISOString();
+  return db.prepare('UPDATE tasks SET title = ?, lastModifiedAt = ? WHERE id = ?').run(title, lastModifiedAt, id);
 };

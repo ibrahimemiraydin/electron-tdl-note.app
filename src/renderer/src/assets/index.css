@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 :root {
-  --color-light-bg: theme('colors.sky.100');
-  --color-light-text: theme('colors.sky.900');
+  --color-light-bg: theme('colors.stone.100');
+  --color-light-text: theme('colors.stone.900');
   --color-dark-bg: theme('colors.slate.800');
   --color-dark-text: theme('colors.slate.200');
 }
@@ -17,3 +17,4 @@ body {
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Montserrat', sans-serif;
 }
+

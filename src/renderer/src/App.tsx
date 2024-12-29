@@ -11,6 +11,8 @@ interface Task {
   id: number;
   title: string;
   notes: string;
+  createdAt: string;
+  lastModifiedAt: string;
 }
 
 const App: React.FC = () => {
@@ -52,7 +54,8 @@ const App: React.FC = () => {
   }, []);
 
   const addTask = (title: string, notes: string = ''): void => {
-    window.electron.ipcRenderer.invoke('add-task', title, notes).then(() => {
+    const createdAt = new Date().toISOString();
+    window.electron.ipcRenderer.invoke('add-task', title, notes, createdAt, createdAt).then(() => {
       window.electron.ipcRenderer.invoke('get-all-tasks').then((loadedTasks: Task[]) => {
         setTasks(loadedTasks);
       });
@@ -114,7 +117,7 @@ const App: React.FC = () => {
           <Routes>
             <Route
               path="/"
-              element={<HomePage addTask={addTask} recentTasks={tasks.slice(0, 3)} trashTask={trashTask} renameTask={renameTask} />}
+              element={<HomePage addTask={addTask} tasks={tasks} trashTask={trashTask} renameTask={renameTask} />}
             />
             <Route
               path="/tasks"

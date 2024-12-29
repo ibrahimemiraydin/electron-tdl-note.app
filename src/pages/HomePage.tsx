@@ -5,16 +5,18 @@ interface Task {
   id: number;
   title: string;
   notes: string;
+  createdAt: string;
+  lastModifiedAt: string;
 }
 
 interface HomePageProps {
   addTask: (title: string, notes: string) => void;
-  recentTasks: Task[];
+  tasks: Task[];
   trashTask: (id: number) => void;
   renameTask: (id: number, title: string) => void;
 }
 
-const HomePage: React.FC<HomePageProps> = ({ addTask, recentTasks, trashTask, renameTask }) => {
+const HomePage: React.FC<HomePageProps> = ({ addTask, tasks, trashTask, renameTask }) => {
   const [taskTitle, setTaskTitle] = useState('');
   const [menuVisible, setMenuVisible] = useState<null | number>(null);
   const [editTaskId, setEditTaskId] = useState<null | number>(null);
@@ -45,6 +47,11 @@ const HomePage: React.FC<HomePageProps> = ({ addTask, recentTasks, trashTask, re
     setMenuVisible(null);
   };
 
+  // Sort tasks by lastModifiedAt in descending order and take the top 3
+  const sortedRecentTasks = tasks
+    .sort((a, b) => new Date(b.lastModifiedAt).getTime() - new Date(a.lastModifiedAt).getTime())
+    .slice(0, 3);
+
   return (
     <>
       <div className="text-center bg-stone-50 dark:bg-slate-800 rounded-lg p-8 shadow-lg">
@@ -72,7 +79,7 @@ const HomePage: React.FC<HomePageProps> = ({ addTask, recentTasks, trashTask, re
       <div className="mt-8 bg-stone-50 dark:bg-slate-800 rounded-lg p-6 shadow-lg">
         <h2 className="text-3xl font-bold text-stone-950 dark:text-slate-200 mb-4">Recent Tasks</h2>
         <div className="space-y-4">
-          {recentTasks.slice(-3).reverse().map((task) => (
+          {sortedRecentTasks.map((task) => (
             <div
               key={task.id}
               className="bg-white dark:bg-slate-700 p-4 rounded shadow-md border border-gray-300 dark:border-slate-600 relative cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition duration-300"
@@ -94,7 +101,11 @@ const HomePage: React.FC<HomePageProps> = ({ addTask, recentTasks, trashTask, re
               ) : (
                 <>
                   <h3 className="text-xl font-bold text-stone-950 dark:text-slate-200 mb-2">{task.title}</h3>
-                  <p className="text-stone-950 dark:text-slate-200">{task.notes}</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Created At: {new Date(task.createdAt).toLocaleString()}</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm">Last Modified: {new Date(task.lastModifiedAt).toLocaleString()}</p>
+                  <p className="text-stone-950 dark:text-slate-200">
+                    {task.notes.length > 203 ? task.notes.substring(0, 203) + '...' : task.notes}
+                  </p>
                 </>
               )}
               <div className="absolute top-2 right-2">
