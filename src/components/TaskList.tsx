@@ -16,6 +16,8 @@ interface TaskListProps {
   newTitle: string;
   handleRenameTask: (taskId: number, title: string) => void;
   handleContextMenuEllipsis: (event: React.MouseEvent, taskId: number) => void;
+  inputRef: React.RefObject<HTMLInputElement>;
+  setIsClickingRenameInput: (value: boolean) => void;
 }
 
 const TaskList: React.FC<TaskListProps> = ({
@@ -27,7 +29,9 @@ const TaskList: React.FC<TaskListProps> = ({
   setNewTitle,
   newTitle,
   handleRenameTask,
-  handleContextMenuEllipsis
+  handleContextMenuEllipsis,
+  inputRef,
+  setIsClickingRenameInput
 }) => {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, taskId: number) => {
     if (e.key === 'Enter') {
@@ -53,6 +57,8 @@ const TaskList: React.FC<TaskListProps> = ({
               onChange={(e) => setNewTitle(e.target.value)}
               onKeyDown={(e) => handleKeyDown(e, task.id)}
               className="border dark:border-slate-600 dark:bg-slate-600 dark:text-white p-2 w-full rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              ref={inputRef}
+              onMouseDown={() => setIsClickingRenameInput(true)}
               autoFocus
             />
           ) : (

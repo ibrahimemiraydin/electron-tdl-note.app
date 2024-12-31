@@ -46,6 +46,7 @@ const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
   const [taskInput, setTaskInput] = useState<string>('');
   const [isNoteModalOpen, setIsNoteModalOpen] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [isClickingRenameInput, setIsClickingRenameInput] = useState<boolean>(false);
 
   useEffect(() => {
     if (editingTaskId !== null) {
@@ -69,8 +70,10 @@ const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (inputRef.current && !inputRef.current.contains(event.target as Node)) {
-        if (editingTaskId !== null) {
+        if (editingTaskId !== null && !isClickingRenameInput) {
           handleRenameTask(editingTaskId, newTitle);
+        } else {
+          setIsClickingRenameInput(false);
         }
       }
     };
@@ -79,15 +82,19 @@ const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [editingTaskId, newTitle]);
+  }, [editingTaskId, newTitle, isClickingRenameInput]);
 
   const handleTaskClick = (taskId: number): void => {
-    const task = tasks.find((task) => task.id === taskId);
-    if (task) {
-      setSelectedTask(task);
-      setEditingTaskId(null);
-      setNoteContent(task.notes);
-      setIsNoteModalOpen(true);
+    if (!isClickingRenameInput) {
+      const task = tasks.find((task) => task.id === taskId);
+      if (task) {
+        setSelectedTask(task);
+        setEditingTaskId(null);
+        setNoteContent(task.notes);
+        setIsNoteModalOpen(true);
+      }
+    } else {
+      setIsClickingRenameInput(false);
     }
   };
 
@@ -176,6 +183,8 @@ const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
             newTitle={newTitle}
             handleRenameTask={handleRenameTask}
             handleContextMenuEllipsis={handleContextMenuEllipsis}
+            inputRef={inputRef}
+            setIsClickingRenameInput={setIsClickingRenameInput} // Pass the new prop
           />
         </div>
       </div>

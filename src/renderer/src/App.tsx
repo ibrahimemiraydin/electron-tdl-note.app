@@ -128,7 +128,7 @@ const App: React.FC = () => {
           <Routes>
             <Route
               path="/"
-              element={<HomePage addTask={addTask} tasks={tasks} trashTask={trashTask} renameTask={renameTask} />}
+              element={<HomePage addTask={addTask} tasks={tasks}/>}
             />
             <Route
               path="/tasks"
