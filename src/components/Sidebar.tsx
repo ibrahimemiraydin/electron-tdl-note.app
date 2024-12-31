@@ -19,7 +19,7 @@ const Sidebar: React.FC<SidebarProps> = ({ children, profilePhoto, name, updateP
 
   return (
     <div className="flex h-screen">
-      <div className="fixed inset-y-0 left-0 w-64 bg-gradient-to-r from-stone-50 via-stone-100 to-stone-50 dark:bg-gradient-to-r dark:from-slate-800 dark:via-slate-700 dark:to-slate-800 p-4 flex flex-col justify-between shadow-xl rounded-r-lg">
+      <div className="fixed inset-y-0 left-0 w-64 bg-gradient-to-r from-stone-50 via-stone-100 to-stone-50 dark:bg-gradient-to-r dark:from-slate-800 dark:via-slate-750 dark:to-slate-700 p-4 flex flex-col justify-between shadow-xl">
         <div className="space-y-6">
           <button
             ref={profileButtonRef}
@@ -97,7 +97,7 @@ const Sidebar: React.FC<SidebarProps> = ({ children, profilePhoto, name, updateP
           </Link>
         </div>
       </div>
-      <div className="ml-64 flex-1 p-6 bg-stone-50 dark:bg-slate-800 overflow-y-auto">
+      <div className="ml-64 flex-1 bg-stone-50 dark:bg-slate-800 overflow-y-auto">
         {children}
       </div>
       <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} updateProfile={updateProfile} />
