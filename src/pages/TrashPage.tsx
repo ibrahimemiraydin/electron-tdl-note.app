@@ -10,6 +10,8 @@ interface Task {
 
 interface TrashPageProps {
   trashedTasks: Task[];
+  tasks: Task[];
+  setTasks: (tasks: Task[]) => void;
   deleteTaskPermanently: (id: number) => void;
   restoreTask: (id: number) => void;
 }
@@ -24,7 +26,7 @@ const TrashPage: React.FC<TrashPageProps> = ({ trashedTasks, deleteTaskPermanent
             key={task.id}
             className="bg-white dark:bg-slate-700 p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 relative group"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-green-600 to-red-600 opacity-0 group-hover:opacity-50 transition-opacity duration-300 rounded-lg"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-green-600 to-red-700 opacity-0 group-hover:opacity-50 transition-opacity duration-300 rounded-lg"></div>
             <div className="relative z-10 flex flex-col justify-between h-full">
               <div>
                 <h2 className="text-2xl font-bold mb-2 text-stone-950 dark:text-slate-200">{task.title}</h2>

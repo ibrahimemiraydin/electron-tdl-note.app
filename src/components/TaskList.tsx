@@ -60,8 +60,14 @@ const TaskList: React.FC<TaskListProps> = ({
           )}
           <span
             className="ml-4 cursor-pointer text-gray-500 hover:text-gray-700 dark:text-slate-200 dark:hover:text-white transition duration-300"
-            onClick={(event) => handleContextMenuEllipsis(event, task.id)}
-            onContextMenu={(event) => handleContextMenuEllipsis(event, task.id)}
+            onClick={(event) => {
+              event.stopPropagation();
+              handleContextMenuEllipsis(event, task.id);
+            }}
+            onContextMenu={(event) => {
+              event.stopPropagation();
+              handleContextMenuEllipsis(event, task.id);
+            }}
           >
             ⋯
           </span>

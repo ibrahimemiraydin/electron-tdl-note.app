@@ -8,14 +8,7 @@ interface NoteModalProps {
 }
 
 const NoteModal: React.FC<NoteModalProps> = ({ isOpen, onClose, noteContent, onNotesChange }) => {
-  const [noteContentState, setNoteContentState] = React.useState(noteContent);
   const modalRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (isOpen) {
-      setNoteContentState(noteContent);
-    }
-  }, [isOpen, noteContent]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -31,7 +24,6 @@ const NoteModal: React.FC<NoteModalProps> = ({ isOpen, onClose, noteContent, onN
   }, [onClose]);
 
   const handleNotesChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setNoteContentState(event.target.value);
     onNotesChange(event.target.value);
   };
 
@@ -47,7 +39,7 @@ const NoteModal: React.FC<NoteModalProps> = ({ isOpen, onClose, noteContent, onN
           </button>
         </div>
         <textarea
-          value={noteContentState}
+          value={noteContent}
           onChange={handleNotesChange}
           className="w-full h-[75vh] p-4 mt-4 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-600 dark:border-slate-500 dark:text-white"
           placeholder="Type your notes here..."
