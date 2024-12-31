@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import TaskList from '../components/TaskList';
+import NoteModal from '../components/NoteModal';
 import { Menu, Item, useContextMenu } from 'react-contexify';
 import 'react-contexify/dist/ReactContexify.css';
 import { useLocation } from 'react-router-dom';
@@ -43,6 +44,7 @@ const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
   const [noteContent, setNoteContent] = useState<string>('');
   const [taskInput, setTaskInput] = useState<string>('');
+  const [isNoteModalOpen, setIsNoteModalOpen] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -85,6 +87,7 @@ const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
       setSelectedTask(task);
       setEditingTaskId(null);
       setNoteContent(task.notes);
+      setIsNoteModalOpen(true);
     }
   };
 
@@ -97,11 +100,10 @@ const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
     }
   };
 
-  const handleNotesChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const content = event.target.value;
-    setNoteContent(content);
+  const handleNotesChange = (notes: string) => {
+    setNoteContent(notes);
     if (selectedTask) {
-      updateTask(selectedTask.id, content);
+      updateTask(selectedTask.id, notes);
     }
   };
 
@@ -140,49 +142,50 @@ const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
   };
 
   return (
-    <div className="bg-stone-50 dark:bg-slate-800 h-full w-full flex">
-      <div className="w-1/4 p-4">
-        <div className="mb-4">
-          <input
-            type="text"
-            value={taskInput}
-            onChange={(e) => setTaskInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                handleAddTask();
-              }
-            }}
-            onClick={handleInputClick}
-            placeholder="New Task"
-            className="border p-2 w-full dark:bg-slate-700 dark:border-slate-600 dark:text-white mb-2"
+    <div className="bg-stone-50 dark:bg-slate-800 h-full w-full flex flex-col p-6 space-y-6">
+      <div className="bg-white dark:bg-slate-700 p-4 rounded-xl shadow-lg flex items-center space-x-2">
+        <input
+          type="text"
+          value={taskInput}
+          onChange={(e) => setTaskInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              handleAddTask();
+            }
+          }}
+          onClick={handleInputClick}
+          placeholder="New Task"
+          className="border p-3 flex-grow dark:bg-slate-600 dark:border-slate-500 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <button
+          onClick={handleAddTask}
+          className="bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-lg transition duration-300 transform hover:scale-105"
+        >
+          Add Task
+        </button>
+      </div>
+      <div className="flex-grow flex">
+        <div className="w-full p-4 bg-white dark:bg-slate-700 rounded-xl shadow-lg">
+          <TaskList
+            tasks={tasks}
+            handleTaskClick={handleTaskClick}
+            selectedTask={selectedTask}
+            onContextMenu={handleContextMenu}
+            editingTaskId={editingTaskId}
+            setNewTitle={setNewTitle}
+            newTitle={newTitle}
+            handleRenameTask={handleRenameTask}
+            handleContextMenuEllipsis={handleContextMenuEllipsis}
           />
-          <button
-            onClick={handleAddTask}
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white p-2 rounded dark:bg-blue-700 dark:hover:bg-blue-800"
-          >
-            Add Task
-          </button>
         </div>
-        <TaskList
-          tasks={tasks}
-          handleTaskClick={handleTaskClick}
-          selectedTask={selectedTask}
-          onContextMenu={handleContextMenu}
-          editingTaskId={editingTaskId}
-          setNewTitle={setNewTitle}
-          newTitle={newTitle}
-          handleRenameTask={handleRenameTask}
-          handleContextMenuEllipsis={handleContextMenuEllipsis}
-        />
       </div>
-      <div className="flex-1 p-4 bg-stone-50 dark:bg-slate-800">
-        <textarea
-          value={noteContent}
-          onChange={handleNotesChange}
-          className="w-full h-full p-2 border dark:bg-slate-700 dark:border-slate-600 dark:text-white"
-        />
-      </div>
-      <Menu id="task-context-menu" className="dark:bg-slate-400 dark:border-slate-300 dark:text-slate-200">
+      <NoteModal
+        isOpen={isNoteModalOpen}
+        onClose={() => setIsNoteModalOpen(false)}
+        noteContent={noteContent}
+        onNotesChange={handleNotesChange}
+      />
+      <Menu id="task-context-menu" className="dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200">
         <Item onClick={({ props }) => handleRenameClick(props.taskId)}>Rename</Item>
         <Item onClick={({ props }) => trashTask(props.taskId)}>Move to Trash</Item>
       </Menu>

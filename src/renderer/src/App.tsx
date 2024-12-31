@@ -93,6 +93,17 @@ const App: React.FC = () => {
     });
   };
 
+  const restoreTask = (id: number): void => {
+    window.electron.ipcRenderer.invoke('restore-task', id).then(() => {
+      window.electron.ipcRenderer.invoke('get-all-tasks').then((loadedTasks: Task[]) => {
+        setTasks(loadedTasks);
+      });
+      window.electron.ipcRenderer.invoke('get-trashed-tasks').then((loadedTrashedTasks: Task[]) => {
+        setTrashedTasks(loadedTrashedTasks);
+      });
+    });
+  };
+
   const renameTask = (id: number, title: string): void => {
     window.electron.ipcRenderer.invoke('rename-task', id, title).then(() => {
       window.electron.ipcRenderer.invoke('get-all-tasks').then((loadedTasks: Task[]) => {
@@ -112,7 +123,7 @@ const App: React.FC = () => {
 
   return (
     <Router>
-      <div className="bg-stone-50 dark:bg-slate-800">
+      <div>
         <Sidebar profilePhoto={profilePhoto} name={name} updateProfile={updateProfile}>
           <Routes>
             <Route
@@ -142,7 +153,10 @@ const App: React.FC = () => {
               element={
                 <TrashPage
                   trashedTasks={trashedTasks}
+                  tasks={tasks}
+                  setTasks={setTasks}
                   deleteTaskPermanently={deleteTaskPermanently}
+                  restoreTask={restoreTask}
                 />
               }
             />
