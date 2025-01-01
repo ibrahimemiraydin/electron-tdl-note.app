@@ -16,11 +16,17 @@ interface HomePageProps {
 
 const HomePage: React.FC<HomePageProps> = ({ addTask, tasks }) => {
   const [taskTitle, setTaskTitle] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleAddTask = () => {
+    if (taskTitle.trim() === '') {
+      setError('Task title cannot be empty');
+      return;
+    }
     addTask(taskTitle, '');
     setTaskTitle('');
+    setError('');
   };
 
   const handleTaskClick = (taskId: number) => {
@@ -45,6 +51,7 @@ const HomePage: React.FC<HomePageProps> = ({ addTask, tasks }) => {
             placeholder="New Task"
             className="border dark:border-slate-600 dark:bg-slate-600 dark:text-white p-3 mb-4 w-full rounded-md focus:outline-none focus:ring-4 focus:ring-blue-500"
           />
+          {error && <p className="text-red-500 mb-4">{error}</p>}
           <button
             onClick={handleAddTask}
             className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-full p-4 w-full mt-2 transition duration-300 shadow-lg transform hover:scale-110"

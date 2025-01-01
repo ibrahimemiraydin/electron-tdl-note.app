@@ -184,7 +184,7 @@ const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
             handleRenameTask={handleRenameTask}
             handleContextMenuEllipsis={handleContextMenuEllipsis}
             inputRef={inputRef}
-            setIsClickingRenameInput={setIsClickingRenameInput} // Pass the new prop
+            setIsClickingRenameInput={setIsClickingRenameInput}
           />
         </div>
       </div>

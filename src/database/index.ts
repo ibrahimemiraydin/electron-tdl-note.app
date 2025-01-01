@@ -75,7 +75,6 @@ export const restoreTask = (id: number) => {
   return db.prepare('UPDATE tasks SET isTrashed = 0 WHERE id = ?').run(id);
 };
 
-
 export const renameTask = (id: number, title: string) => {
   const lastModifiedAt = new Date().toISOString();
   return db.prepare('UPDATE tasks SET title = ?, lastModifiedAt = ? WHERE id = ?').run(title, lastModifiedAt, id);

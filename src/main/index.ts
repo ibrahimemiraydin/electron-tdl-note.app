@@ -92,6 +92,5 @@ ipcMain.handle('get-trashed-tasks', () => getTrashedTasks()); // Add this handle
 ipcMain.handle('get-setting', async (_, key) => { return getSetting(key); });
 ipcMain.handle('set-setting', async (_, key, value) => { return setSetting(key, value); });
 
-
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.

@@ -46,7 +46,7 @@ const TaskList: React.FC<TaskListProps> = ({
           key={task.id}
           className={`border border-gray-300 dark:border-slate-600 p-4 cursor-pointer rounded-lg transition duration-300 shadow-sm ${
             selectedTask?.id === task.id || editingTaskId === task.id ? 'bg-blue-100 dark:bg-slate-700' : 'hover:bg-gray-200 dark:hover:bg-slate-600'
-          } flex justify-between items-center`}
+          } flex justify-between items-center relative`}
           onClick={() => handleTaskClick(task.id)}
           onContextMenu={(event) => onContextMenu(event, task.id)}
         >
@@ -62,21 +62,23 @@ const TaskList: React.FC<TaskListProps> = ({
               autoFocus
             />
           ) : (
-            <span className="text-lg font-medium text-stone-950 dark:text-slate-200 flex-grow">{task.title}</span>
+            <>
+              <span className="text-lg font-medium text-stone-950 dark:text-slate-200 flex-grow">{task.title}</span>
+              <span
+                className="ml-4 cursor-pointer text-gray-500 hover:text-gray-700 dark:text-slate-200 dark:hover:text-white transition duration-300"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  handleContextMenuEllipsis(event, task.id);
+                }}
+                onContextMenu={(event) => {
+                  event.stopPropagation();
+                  handleContextMenuEllipsis(event, task.id);
+                }}
+              >
+                ⋯
+              </span>
+            </>
           )}
-          <span
-            className="ml-4 cursor-pointer text-gray-500 hover:text-gray-700 dark:text-slate-200 dark:hover:text-white transition duration-300"
-            onClick={(event) => {
-              event.stopPropagation();
-              handleContextMenuEllipsis(event, task.id);
-            }}
-            onContextMenu={(event) => {
-              event.stopPropagation();
-              handleContextMenuEllipsis(event, task.id);
-            }}
-          >
-            ⋯
-          </span>
         </div>
       ))}
     </div>
