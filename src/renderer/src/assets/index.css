@@ -1,3 +1,5 @@
+@import url('https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.10.2/skins/ui/oxide/skin.min.css');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -18,3 +20,23 @@ h1, h2, h3, h4, h5, h6 {
   font-family: 'Montserrat', sans-serif;
 }
 
+/* Custom CSS for Tiptap Editor */
+.tiptap-editor {
+  @apply min-h-[60vh] p-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500;
+}
+
+.tiptap-toolbar {
+  @apply flex space-x-2 border-b pb-2 mb-4;
+}
+
+.tiptap-toolbar button {
+  @apply px-2 py-1 rounded;
+}
+
+.tiptap-toolbar button.is-active {
+  @apply bg-blue-500 text-white;
+}
+
+.tiptap-toolbar button:not(.is-active) {
+  @apply bg-gray-200 text-black;
+}
