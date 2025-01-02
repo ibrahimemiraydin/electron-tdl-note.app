@@ -53,17 +53,18 @@ const App: React.FC = () => {
     });
   }, []);
 
-  const addTask = (title: string, notes: string = ''): void => {
+  const addTask = (title: string, notes: string): void => {
     const createdAt = new Date().toISOString();
-    window.electron.ipcRenderer.invoke('add-task', title, notes, createdAt, createdAt).then(() => {
-      window.electron.ipcRenderer.invoke('get-all-tasks').then((loadedTasks: Task[]) => {
-        setTasks(loadedTasks);
-      });
+    const lastModifiedAt = createdAt;
+    const newTask: Task = { id: tasks.length + 1, title, notes, createdAt, lastModifiedAt };
+    window.electron.ipcRenderer.invoke('add-task', title, notes, createdAt, lastModifiedAt).then(() => {
+      setTasks((prevTasks) => [...prevTasks, newTask]);
     });
   };
 
   const updateTask = (id: number, notes: string): void => {
-    window.electron.ipcRenderer.invoke('update-task', id, notes).then(() => {
+    const lastModifiedAt = new Date().toISOString();
+    window.electron.ipcRenderer.invoke('update-task', id, notes, lastModifiedAt).then(() => {
       window.electron.ipcRenderer.invoke('get-all-tasks').then((loadedTasks: Task[]) => {
         setTasks(loadedTasks);
         const updatedTask = loadedTasks.find((task) => task.id === id);
@@ -105,7 +106,8 @@ const App: React.FC = () => {
   };
 
   const renameTask = (id: number, title: string): void => {
-    window.electron.ipcRenderer.invoke('rename-task', id, title).then(() => {
+    const lastModifiedAt = new Date().toISOString();
+    window.electron.ipcRenderer.invoke('rename-task', id, title, lastModifiedAt).then(() => {
       window.electron.ipcRenderer.invoke('get-all-tasks').then((loadedTasks: Task[]) => {
         setTasks(loadedTasks);
       });
@@ -128,7 +130,7 @@ const App: React.FC = () => {
           <Routes>
             <Route
               path="/"
-              element={<HomePage addTask={addTask}/>}
+              element={<HomePage addTask={addTask} />}
             />
             <Route
               path="/tasks"

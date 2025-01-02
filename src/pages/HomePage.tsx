@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
-
 interface HomePageProps {
   addTask: (title: string, notes: string) => void;
 }

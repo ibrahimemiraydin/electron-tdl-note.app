@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import TaskList from '../components/TaskList';
+import Tasks from '../components/Tasks';
 import NoteModal from '../components/NoteModal';
-import { Menu, Item, useContextMenu } from 'react-contexify';
-import 'react-contexify/dist/ReactContexify.css';
 import { useLocation } from 'react-router-dom';
 
 interface Task {
@@ -15,10 +13,10 @@ interface Task {
 
 interface TaskManagerPageProps {
   tasks: Task[];
-  addTask: (title: string) => void;
+  addTask: (title: string, notes: string) => void;
   selectedTask: Task | null;
   setSelectedTask: (task: Task | null) => void;
-  updateTask: (id: number, notes: string) => void;
+  updateTask: (id: number, notes: string, lastModifiedAt: string) => void;
   trashTask: (id: number) => void;
   renameTask: (id: number, title: string) => void;
 }
@@ -32,10 +30,6 @@ const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
   trashTask,
   renameTask
 }) => {
-  const { show } = useContextMenu({
-    id: 'task-context-menu'
-  });
-
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const taskId = queryParams.get('taskId');
@@ -47,6 +41,22 @@ const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
   const [isNoteModalOpen, setIsNoteModalOpen] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const [isClickingRenameInput, setIsClickingRenameInput] = useState<boolean>(false);
+
+  const currentDateTime = () => new Date().toISOString();
+
+  const addTaskWithTimestamp = (title: string) => {
+    addTask(title, '');
+  };
+
+  const handleUpdateTask = (taskId: number, lastModifiedAt: string) => {
+    const task = tasks.find((task) => task.id === taskId);
+    if (task) {
+      task.lastModifiedAt = lastModifiedAt;
+      updateTask(taskId, task.notes, lastModifiedAt);
+      const updatedTasks = tasks.map((t) => (t.id === taskId ? { ...t, lastModifiedAt } : t));
+      setSelectedTask(updatedTasks.find((t) => t.id === taskId) || null);
+    }
+  };
 
   useEffect(() => {
     if (editingTaskId !== null) {
@@ -71,7 +81,7 @@ const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
     const handleClickOutside = (event: MouseEvent) => {
       if (inputRef.current && !inputRef.current.contains(event.target as Node)) {
         if (editingTaskId !== null && !isClickingRenameInput) {
-          handleRenameTask(editingTaskId, newTitle);
+          renameTask(editingTaskId, newTitle);
         } else {
           setIsClickingRenameInput(false);
         }
@@ -98,42 +108,13 @@ const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
     }
   };
 
-  const handleRenameTask = (taskId: number, title: string) => {
-    renameTask(taskId, title);
-    setEditingTaskId(null);
-    if (selectedTask && selectedTask.id === taskId) {
-      const updatedTask = { ...selectedTask, title };
-      setSelectedTask(updatedTask);
-    }
-  };
-
   const handleNotesChange = (notes: string) => {
     setNoteContent(notes);
     if (selectedTask) {
-      updateTask(selectedTask.id, notes);
+      updateTask(selectedTask.id, notes, currentDateTime());
+      const updatedTask = { ...selectedTask, notes, lastModifiedAt: currentDateTime() };
+      setSelectedTask(updatedTask);
     }
-  };
-
-  const handleContextMenu = (event: React.MouseEvent, taskId: number) => {
-    event.preventDefault();
-    setSelectedTask(tasks.find((task) => task.id === taskId) || null);
-    show({
-      event,
-      props: { taskId }
-    });
-  };
-
-  const handleContextMenuEllipsis = (event: React.MouseEvent, taskId: number) => {
-    event.preventDefault();
-    setSelectedTask(tasks.find((task) => task.id === taskId) || null);
-    show({
-      event,
-      props: { taskId }
-    });
-  };
-
-  const handleRenameClick = (taskId: number) => {
-    setEditingTaskId(taskId);
   };
 
   const handleInputClick = () => {
@@ -143,9 +124,16 @@ const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
 
   const handleAddTask = () => {
     if (taskInput.trim()) {
-      addTask(taskInput);
+      addTaskWithTimestamp(taskInput);
       setTaskInput('');
     }
+  };
+
+  const handleContextMenu = (event: React.MouseEvent, taskId: number) => {
+    event.preventDefault();
+    const taskElement = event.currentTarget as HTMLElement;
+    taskElement.setAttribute('taskId', taskId.toString());
+    event.target['taskId'] = taskId;
   };
 
   return (
@@ -173,7 +161,7 @@ const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
       </div>
       <div className="flex-grow flex">
         <div className="w-full p-4 bg-white dark:bg-slate-700 rounded-xl shadow-lg">
-          <TaskList
+          <Tasks
             tasks={tasks}
             handleTaskClick={handleTaskClick}
             selectedTask={selectedTask}
@@ -181,10 +169,12 @@ const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
             editingTaskId={editingTaskId}
             setNewTitle={setNewTitle}
             newTitle={newTitle}
-            handleRenameTask={handleRenameTask}
-            handleContextMenuEllipsis={handleContextMenuEllipsis}
+            handleRenameTask={renameTask}
+            handleTrashTask={trashTask}
+            handleUpdateTask={handleUpdateTask}
             inputRef={inputRef}
             setIsClickingRenameInput={setIsClickingRenameInput}
+            setEditingTaskId={setEditingTaskId}
           />
         </div>
       </div>
@@ -194,10 +184,6 @@ const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
         noteContent={noteContent}
         onNotesChange={handleNotesChange}
       />
-      <Menu id="task-context-menu" className="dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200">
-        <Item onClick={({ props }) => handleRenameClick(props.taskId)}>Rename</Item>
-        <Item onClick={({ props }) => trashTask(props.taskId)}>Move to Trash</Item>
-      </Menu>
     </div>
   );
 };
