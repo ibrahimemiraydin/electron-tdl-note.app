@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css'; // Import Quill styles
+import 'react-quill/dist/quill.snow.css';
 
 interface QuillEditorProps {
   content: string;
@@ -9,6 +9,26 @@ interface QuillEditorProps {
 
 const QuillEditor: React.FC<QuillEditorProps> = ({ content, onEditorChange }) => {
   const [editorContent, setEditorContent] = useState<string>(content);
+
+  useEffect(() => {
+    // Apply Tailwind classes to Quill toolbar
+    const toolbar = document.querySelector('.ql-toolbar');
+    if (toolbar) {
+      toolbar.classList.add('bg-gray-800', 'border-gray-600', 'text-gray-300');
+      const buttons = toolbar.querySelectorAll('button');
+      buttons.forEach(button => {
+        button.classList.add('text-gray-300');
+      });
+      const pickers = toolbar.querySelectorAll('.ql-picker');
+      pickers.forEach(picker => {
+        picker.classList.add('text-gray-300');
+      });
+      const pickerOptions = toolbar.querySelectorAll('.ql-picker-options');
+      pickerOptions.forEach(options => {
+        options.classList.add('bg-gray-800', 'border-gray-600');
+      });
+    }
+  }, []);
 
   const handleEditorChange = (value: string) => {
     setEditorContent(value);
@@ -40,7 +60,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ content, onEditorChange }) =>
         onChange={handleEditorChange}
         modules={modules}
         formats={formats}
-        className="flex-grow min-h-[60vh] mb-12" // Added margin-bottom to create space at the bottom
+        className="flex-grow min-h-[60vh] mb-12"
       />
     </div>
   );

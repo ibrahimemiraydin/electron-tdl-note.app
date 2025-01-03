@@ -181,6 +181,7 @@ const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
       <NoteModal
         isOpen={isNoteModalOpen}
         onClose={() => setIsNoteModalOpen(false)}
+        taskName={selectedTask ? selectedTask.title : ''}
         noteContent={noteContent}
         onNotesChange={handleNotesChange}
       />
