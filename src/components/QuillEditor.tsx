@@ -11,24 +11,39 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ content, onEditorChange }) =>
   const [editorContent, setEditorContent] = useState<string>(content);
 
   useEffect(() => {
-    // Apply Tailwind classes to Quill toolbar
+    setEditorContent(content); // Ensure editor updates when the content prop changes
+
+    // Apply Tailwind classes to Quill toolbar for light and dark mode
     const toolbar = document.querySelector('.ql-toolbar');
     if (toolbar) {
-      toolbar.classList.add('bg-gray-800', 'border-gray-600', 'text-gray-300');
+      toolbar.classList.add('bg-gray-100', 'border-gray-300', 'dark:bg-slate-100', 'dark:border-gray-600', 'dark:text-white', 'rounded-t-lg');
       const buttons = toolbar.querySelectorAll('button');
       buttons.forEach(button => {
-        button.classList.add('text-gray-300');
+        button.classList.add('text-black', 'dark:text-white');
       });
       const pickers = toolbar.querySelectorAll('.ql-picker');
       pickers.forEach(picker => {
-        picker.classList.add('text-gray-300');
+        picker.classList.add('text-black', 'dark:text-white');
       });
       const pickerOptions = toolbar.querySelectorAll('.ql-picker-options');
       pickerOptions.forEach(options => {
-        options.classList.add('bg-gray-800', 'border-gray-600');
+        options.classList.add('bg-gray-200', 'border-gray-300', 'dark:bg-gray-800', 'dark:border-gray-600', 'text-black', 'dark:text-black');
       });
     }
-  }, []);
+
+    // Apply Tailwind classes to Quill editor for dark mode text
+    const editor = document.querySelector('.ql-editor');
+    if (editor) {
+      editor.classList.add('text-black', 'dark:text-white', 'dark:bg-slate-700', 'overflow-y-auto', 'max-h-[76vh]', 'rounded-b-lg', 'scrollbar-thin', 'scrollbar-thumb-gray-400', 'scrollbar-track-gray-200', 'dark:scrollbar-thumb-gray-600', 'dark:scrollbar-track-gray-800');
+    }
+
+    // Apply Tailwind classes to the Quill container for the rounded bottom
+    const container = document.querySelector('.ql-container');
+    if (container) {
+      container.classList.add('rounded-b-lg', 'border', 'border-gray-300', 'dark:border-gray-600', 'h-full');
+      (container as HTMLElement).style.maxHeight = '76vh'; // Set the max height of the container
+    }
+  }, [content]);
 
   const handleEditorChange = (value: string) => {
     setEditorContent(value);
@@ -37,20 +52,26 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ content, onEditorChange }) =>
 
   const modules = {
     toolbar: [
-      [{ 'header': '1'}, {'header': '2'}, { 'font': [] }],
-      [{size: []}],
+      [{ 'header': [1, 2, 3, 4, 5, 6, false] }], // Headers from h1 to h6
+      [{ 'size': ['small', false, 'large', 'huge'] }], // Custom font sizes
+      [{ 'align': [] }], // Text alignment including justify
+      [{ 'color': [] }, { 'background': [] }], // Color and background color
+      [{ 'list': 'ordered'}, {'list': 'bullet'}, {'indent': '-1'}, {'indent': '+1'}],
       ['bold', 'italic', 'underline', 'strike', 'blockquote'],
-      [{'list': 'ordered'}, {'list': 'bullet'}, {'indent': '-1'}, {'indent': '+1'}],
+      [{ 'script': 'sub' }, { 'script': 'super' }], // Subscript and superscript
+      [{ 'direction': 'rtl' }], // Right-to-left text direction
       ['link', 'image', 'video'],
-      ['clean']
+      ['code-block'], // Code block
+      ['code'], // Inline code
+      ['clean'] // Remove formatting
     ],
   };
 
   const formats = [
-    'header', 'font', 'size',
+    'header', 'font', 'align', 'color', 'background', 'size',
     'bold', 'italic', 'underline', 'strike', 'blockquote',
-    'list', 'bullet', 'indent',
-    'link', 'image', 'video'
+    'list', 'bullet', 'indent', 'script', 'direction',
+    'link', 'image', 'video', 'code-block', 'code'
   ];
 
   return (
@@ -60,7 +81,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ content, onEditorChange }) =>
         onChange={handleEditorChange}
         modules={modules}
         formats={formats}
-        className="flex-grow min-h-[60vh] mb-12"
+        className="flex-grow bg-white dark:bg-slate-700 dark:text-white rounded-lg"
       />
     </div>
   );

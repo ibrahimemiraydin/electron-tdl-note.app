@@ -36,4 +36,19 @@ h1, h2, h3, h4, h5, h6 {
   animation: smooth-fade-out 1s ease-in-out forwards; /* Smooth fade-out animation */
 }
 
+/* Modern-looking scrollbar using Tailwind CSS */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 8px;
+}
 
+.scrollbar-thin::-webkit-scrollbar-track {
+  @apply bg-gray-200 dark:bg-gray-800 rounded-md;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  @apply bg-gray-400 dark:bg-gray-600 rounded-md;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-600 dark:bg-gray-800;
+}
