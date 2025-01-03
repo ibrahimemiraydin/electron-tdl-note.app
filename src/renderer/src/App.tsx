@@ -6,6 +6,8 @@ import TaskListPage from '../../pages/TaskListPage';
 import TrashPage from '../../pages/TrashPage';
 import Sidebar from '../../components/Sidebar';
 import SettingsModal from '../../components/SettingsModal';
+import '@fortawesome/fontawesome-free/css/all.min.css';
+
 
 interface Task {
   id: number;

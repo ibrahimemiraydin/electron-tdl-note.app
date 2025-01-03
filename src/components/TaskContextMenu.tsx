@@ -11,7 +11,7 @@ interface TaskContextMenuProps {
 const TaskContextMenu: React.FC<TaskContextMenuProps> = ({ onRenameClick, onTrashClick, onPropertiesClick }) => {
   return (
     <>
-      <Menu id="task-context-menu" className="dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200">
+      <Menu id="task-context-menu" className="dark:bg-slate-100 dark:border-slate-600 dark:text-slate-200">
         <Item onClick={({ props }) => onRenameClick(props.taskId)}>Rename</Item>
         <Item onClick={({ props }) => onTrashClick(props.taskId)}>Move to Trash</Item>
         <Item onClick={({ props }) => onPropertiesClick(props.taskId)}>Properties</Item>
