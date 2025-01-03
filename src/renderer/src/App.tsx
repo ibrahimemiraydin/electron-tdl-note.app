@@ -8,7 +8,6 @@ import Sidebar from '../../components/Sidebar';
 import SettingsModal from '../../components/SettingsModal';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
-
 interface Task {
   id: number;
   title: string;
@@ -20,7 +19,6 @@ interface Task {
 const App: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [trashedTasks, setTrashedTasks] = useState<Task[]>([]);
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [profilePhoto, setProfilePhoto] = useState<string>('');
   const [name, setName] = useState<string>('');
@@ -69,10 +67,6 @@ const App: React.FC = () => {
     window.electron.ipcRenderer.invoke('update-task', id, notes, lastModifiedAt).then(() => {
       window.electron.ipcRenderer.invoke('get-all-tasks').then((loadedTasks: Task[]) => {
         setTasks(loadedTasks);
-        const updatedTask = loadedTasks.find((task) => task.id === id);
-        if (updatedTask) {
-          setSelectedTask(updatedTask);
-        }
       });
     });
   };
@@ -140,8 +134,6 @@ const App: React.FC = () => {
                 <TaskPage
                   tasks={tasks}
                   addTask={addTask}
-                  selectedTask={selectedTask}
-                  setSelectedTask={setSelectedTask}
                   updateTask={updateTask}
                   trashTask={trashTask}
                   renameTask={renameTask}

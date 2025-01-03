@@ -13,7 +13,6 @@ interface Task {
 interface TasksProps {
   tasks: Task[];
   handleTaskClick: (taskId: number) => void;
-  selectedTask: Task | null;
   onContextMenu: (event: React.MouseEvent, taskId: number) => void;
   editingTaskId: number | null;
   setNewTitle: (title: string) => void;
@@ -29,7 +28,6 @@ interface TasksProps {
 const Tasks: React.FC<TasksProps> = ({
   tasks,
   handleTaskClick,
-  selectedTask,
   editingTaskId,
   setNewTitle,
   newTitle,
@@ -85,21 +83,12 @@ const Tasks: React.FC<TasksProps> = ({
     };
   }, [editingTaskId, newTitle, handleRenameTask, setEditingTaskId]);
 
-  const truncateTitle = (title: string, length: number) => {
-    if (title.length > length) {
-      return title.substring(0, length) + '';
-    }
-    return title;
-  };
-
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mt-4">
       {tasks.map((task) => (
         <div
           key={task.id}
-          className={`border border-gray-300 dark:border-slate-600 p-4 cursor-pointer rounded-lg transition duration-300 shadow-sm ${
-            selectedTask?.id === task.id || editingTaskId === task.id ? 'bg-blue-100 dark:bg-slate-700' : 'hover:bg-gray-200 dark:hover:bg-slate-600'
-          } flex flex-col justify-between relative`}
+          className="border border-gray-300 dark:border-slate-600 p-4 cursor-pointer rounded-lg transition duration-300 shadow-sm hover:bg-gray-200 dark:hover:bg-slate-600 flex flex-col justify-between relative"
           onClick={() => handleTaskClick(task.id)}
           onContextMenu={(event) => {
             handleContextMenu(event, task.id);
@@ -118,7 +107,7 @@ const Tasks: React.FC<TasksProps> = ({
               autoFocus
             />
           ) : (
-            <span className="text-lg font-medium text-stone-950 dark:text-slate-200">{truncateTitle(task.title, 70)}</span>
+            <span className="text-lg font-medium text-stone-950 dark:text-slate-200 break-words">{task.title}</span>
           )}
         </div>
       ))}

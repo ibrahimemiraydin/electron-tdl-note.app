@@ -26,10 +26,10 @@ const TrashPage: React.FC<TrashPageProps> = ({ trashedTasks, deleteTaskPermanent
             key={task.id}
             className="bg-white dark:bg-slate-700 p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 relative group"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-green-600 to-red-700 opacity-0 group-hover:opacity-50 transition-opacity duration-300 rounded-lg"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-stone-500 to-stone-500 opacity-0 group-hover:opacity-50 transition-opacity duration-300 rounded-lg"></div>
             <div className="relative z-10 flex flex-col justify-between h-full">
               <div>
-                <h2 className="text-2xl font-bold mb-2 text-stone-950 dark:text-slate-200">{task.title}</h2>
+                <h2 className="text-2xl font-bold mb-2 text-stone-950 dark:text-slate-200 break-words">{task.title}</h2>
                 <p className="text-gray-600 dark:text-slate-400 overflow-hidden text-ellipsis">
                   {task.notes.length > 100 ? `${task.notes.substring(0, 100)}...` : task.notes}
                 </p>

@@ -14,8 +14,6 @@ interface Task {
 interface TaskManagerPageProps {
   tasks: Task[];
   addTask: (title: string, notes: string) => void;
-  selectedTask: Task | null;
-  setSelectedTask: (task: Task | null) => void;
   updateTask: (id: number, notes: string, lastModifiedAt: string) => void;
   trashTask: (id: number) => void;
   renameTask: (id: number, title: string) => void;
@@ -24,8 +22,6 @@ interface TaskManagerPageProps {
 const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
   tasks,
   addTask,
-  selectedTask,
-  setSelectedTask,
   updateTask,
   trashTask,
   renameTask
@@ -41,6 +37,7 @@ const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
   const [isNoteModalOpen, setIsNoteModalOpen] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const [isClickingRenameInput, setIsClickingRenameInput] = useState<boolean>(false);
+  const [currentTaskName, setCurrentTaskName] = useState<string>('');
 
   const currentDateTime = () => new Date().toISOString();
 
@@ -53,8 +50,6 @@ const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
     if (task) {
       task.lastModifiedAt = lastModifiedAt;
       updateTask(taskId, task.notes, lastModifiedAt);
-      const updatedTasks = tasks.map((t) => (t.id === taskId ? { ...t, lastModifiedAt } : t));
-      setSelectedTask(updatedTasks.find((t) => t.id === taskId) || null);
     }
   };
 
@@ -71,11 +66,11 @@ const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
     if (taskId) {
       const task = tasks.find((task) => task.id === Number(taskId));
       if (task) {
-        setSelectedTask(task);
         setNoteContent(task.notes);
+        setCurrentTaskName(task.title);
       }
     }
-  }, [taskId, tasks, setSelectedTask]);
+  }, [taskId, tasks]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -98,10 +93,12 @@ const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
     if (!isClickingRenameInput) {
       const task = tasks.find((task) => task.id === taskId);
       if (task) {
-        setSelectedTask(task);
         setEditingTaskId(null);
         setNoteContent(task.notes);
+        setCurrentTaskName(task.title);
         setIsNoteModalOpen(true);
+        // Ensure taskId is in the URL to update the selected task
+        window.history.pushState({}, '', `?taskId=${taskId}`);
       }
     } else {
       setIsClickingRenameInput(false);
@@ -110,15 +107,13 @@ const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
 
   const handleNotesChange = (notes: string) => {
     setNoteContent(notes);
-    if (selectedTask) {
-      updateTask(selectedTask.id, notes, currentDateTime());
-      const updatedTask = { ...selectedTask, notes, lastModifiedAt: currentDateTime() };
-      setSelectedTask(updatedTask);
+    const taskId = Number(queryParams.get('taskId'));
+    if (taskId) {
+      updateTask(taskId, notes, currentDateTime());
     }
   };
 
   const handleInputClick = () => {
-    setSelectedTask(null);
     setNoteContent('');
   };
 
@@ -164,7 +159,6 @@ const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
           <Tasks
             tasks={tasks}
             handleTaskClick={handleTaskClick}
-            selectedTask={selectedTask}
             onContextMenu={handleContextMenu}
             editingTaskId={editingTaskId}
             setNewTitle={setNewTitle}
@@ -181,7 +175,7 @@ const TaskManagerPage: React.FC<TaskManagerPageProps> = ({
       <NoteModal
         isOpen={isNoteModalOpen}
         onClose={() => setIsNoteModalOpen(false)}
-        taskName={selectedTask ? selectedTask.title : ''}
+        taskName={currentTaskName}
         noteContent={noteContent}
         onNotesChange={handleNotesChange}
       />

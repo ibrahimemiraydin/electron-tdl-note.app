@@ -50,7 +50,7 @@ const NoteModal: React.FC<NoteModalProps> = ({ isOpen, onClose, taskName, noteCo
         </button>
         <div className="flex flex-col h-full">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-3xl font-bold text-stone-950 dark:text-slate-200">{taskName}</h2> {/* Display task name */}
+            <h2 className="text-3xl font-bold text-stone-950 dark:text-slate-200 break-all">{taskName}</h2> {/* Display task name */}
           </div>
           <div className="flex-grow flex flex-col mb-4">
             <QuillEditor content={noteContent} onEditorChange={onNotesChange} />
